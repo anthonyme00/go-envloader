@@ -9,9 +9,21 @@ type EnvLoader struct {
 	config         Config
 }
 
+// Customize special characters
 type Config struct {
-	Definition         string
-	SliceSeparator     string
+	// This string is used to separate attribute key
+	// and values, by default it is colon (:)
+	// Example:
+	// 1. 	Definition = ":"
+	// 		Tag = `env:"key:KEY_1"`
+	// 2. 	Definition = "="
+	// 		Tag = `env:"key=KEY_1"`
+	Definition string
+	// This string is used to separate
+	// slices elements, by default it is comma (,)
+	SliceSeparator string
+	// This string is used to separate between
+	// attributes, by default it is semicolon (;)
 	AttributeSeparator string
 }
 
@@ -32,10 +44,16 @@ func New(c *Config) EnvLoader {
 	}
 }
 
+// Used to load environment data to struct
+//
+// **Must use pointer**
 func (e *EnvLoader) Load(i interface{}) (errs []error) {
 	return e.processorStack.Load(i)
 }
 
+// Can be used to create a default .ENV configuration file
+//
+// **Must use pointer**
 func (e *EnvLoader) Stringify(i interface{}) (s string, err error) {
 	sb := strings.Builder{}
 

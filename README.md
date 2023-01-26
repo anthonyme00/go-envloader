@@ -37,44 +37,97 @@ This library also supports nested structs whether it's inline or not
 
 Example:
 ```go
+package main
+
+import (
+	"github.com/anthonyme00/go-envloader"
+)
+
 type AppConfig struct {
-    AppName string  `env:"key:APP_NAME;default:UNIPROJECT"`
-    AppPort int     `env:"key:APP_PORT"`
+	AppName string `env:"key:APP_NAME;default:UNIPROJECT"`
+	AppPort int    `env:"key:APP_PORT;default:8081"`
 }
 
 type DBConfig struct {
-    // you can use colons after the identifying atrribute key
-    // colons after the first one are ignored and treated as
-    // part of the string
-    DBUri string     `env:"key:DB_URI;default:192.168.0.1:8080"`
+	// you can use colons after the identifying atrribute key
+	// colons after the first one are ignored and treated as
+	// part of the string
+	DBUri string `env:"key:DB_URI;default:192.168.0.1:8080"`
 }
 
 type Config struct {
-    App AppConfig
-    DB  DBConfig
+	App AppConfig
+	DB  DBConfig
 }
 
-func Initialize() {
-    config := Config{}
+func main() {
+	config := Config{}
 
-    loader := envloader.New(nil)
+	loader := envloader.New(nil)
 
-    // remember to pass pointer
-    errs := loader.Load(&config)
-    if len(errs) > 0 {
-        // error handling
-    }
+	errs, _ := loader.Load(&config)
+	if len(errs) > 0 {
+		// Error handling here
+	}
 
-    // config will have its value loaded and ready :)
+	// config is ready to be used :)
 }
 ```
 
 Slices are also supported. Slice elements are separated with comma (,)
+Example:
 ```go
 type ExampleStruct struct {
     StringSlice []string  `env:"key:STRING;default:STRING 1,STRING 2"`
     Int64Slice  []int64   `env:"key:INT64;default:3,5,7"`
 }
+```
+
+You are also able to create default configuration files using the `Stringify` function
+
+Example:
+```go
+package main
+
+import (
+	"fmt"
+
+	"github.com/anthonyme00/go-envloader"
+)
+
+type AppConfig struct {
+	AppName string `env:"key:APP_NAME;default:UNIPROJECT"`
+	AppPort int    `env:"key:APP_PORT;default:8081"`
+}
+
+type DBConfig struct {
+	DBUri string `env:"key:DB_URI;default:192.168.0.1:8080"`
+}
+
+type Config struct {
+	App AppConfig
+	DB  DBConfig
+}
+
+func main() {
+	config := Config{}
+
+	loader := envloader.New(nil)
+
+	env, _ := loader.Stringify(&config)
+	fmt.Println(env)
+}
+```
+
+Output:
+
+```
+
+APP_NAME = UNIPROJECT
+APP_PORT = 8081
+
+DB_URI = 192.168.0.1:8080
+
 ```
 
 # Supported types
