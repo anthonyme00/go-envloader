@@ -318,7 +318,11 @@ func TestDefaultValues(t *testing.T) {
 		idx := 0
 		testData := generateRandomStruct(false, 10, 1, 2, &idx)
 
-		processor := New(nil)
+		processor := New(&Config{
+			Definition:         ":",
+			SliceSeparator:     ",",
+			AttributeSeparator: ";",
+		})
 
 		errs := processor.Load(testData.Value.Interface())
 
@@ -368,7 +372,11 @@ func TestGeneratedEnv(t *testing.T) {
 		idx := 0
 		testData := generateRandomStruct(true, 10, 1, 2, &idx)
 
-		processor := New(nil)
+		processor := New(&Config{
+			Definition:         ":",
+			SliceSeparator:     ",",
+			AttributeSeparator: ";",
+		})
 
 		str, err := processor.Stringify(testData.Value.Interface())
 		strArr := strings.Split(str, "\n")
@@ -388,7 +396,11 @@ func TestGeneratedEnv(t *testing.T) {
 }
 
 func TestErrorNonPointer(t *testing.T) {
-	processor := New(nil)
+	processor := New(&Config{
+		Definition:         ":",
+		SliceSeparator:     ",",
+		AttributeSeparator: ";",
+	})
 
 	type TestStruct struct {
 		Test  string `env:"key:TEST"`
@@ -407,7 +419,11 @@ func TestErrorNonPointer(t *testing.T) {
 }
 
 func TestErrorNonPointerStringer(t *testing.T) {
-	processor := New(nil)
+	processor := New(&Config{
+		Definition:         ":",
+		SliceSeparator:     ",",
+		AttributeSeparator: ";",
+	})
 
 	type TestStruct struct {
 		Test string `env:"key:TEST"`
@@ -423,7 +439,11 @@ func TestErrorNonPointerStringer(t *testing.T) {
 }
 
 func TestErrorInvalidTag(t *testing.T) {
-	processor := New(nil)
+	processor := New(&Config{
+		Definition:         ":",
+		SliceSeparator:     ",",
+		AttributeSeparator: ";",
+	})
 
 	type TestStruct struct {
 		Test string `env:"key;234"`
@@ -439,7 +459,11 @@ func TestErrorInvalidTag(t *testing.T) {
 }
 
 func TestErrorEmptyTag(t *testing.T) {
-	processor := New(nil)
+	processor := New(&Config{
+		Definition:         ":",
+		SliceSeparator:     ",",
+		AttributeSeparator: ";",
+	})
 
 	type TestStruct struct {
 		Test string

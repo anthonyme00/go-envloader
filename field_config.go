@@ -19,6 +19,7 @@ type FieldConfig struct {
 	Key           string
 	DefaultValue  *string
 	OverrideValue *string
+	Config        Config
 	value         reflect.Value
 	field         reflect.StructField
 }
@@ -41,12 +42,12 @@ func (f *FieldConfig) GetValue() (v, source string) {
 func (f *FieldConfig) WriteENVString(sb *strings.Builder) {
 	if f.value.Kind() == reflect.Struct {
 		sb.WriteRune('\n')
-		f, err := iterableType(f.value.Addr().Interface())
+		iter, err := iterableType(f.value.Addr().Interface())
 		if err == nil {
-			for f.Next() {
-				value, structField := f.Get()
+			for iter.Next() {
+				value, structField := iter.Get()
 
-				conf, err := CreateConfig(value, structField)
+				conf, err := CreateConfig(value, structField, f.Config)
 				if err != nil {
 					continue
 				}
@@ -67,9 +68,10 @@ func (f *FieldConfig) WriteENVString(sb *strings.Builder) {
 	sb.WriteString(fmt.Sprintf("%s = %s\n", f.Key, val))
 }
 
-func CreateConfig(v reflect.Value, s reflect.StructField) (c FieldConfig, err error) {
+func CreateConfig(v reflect.Value, s reflect.StructField, conf Config) (c FieldConfig, err error) {
 	c.value = v
 	c.field = s
+	c.Config = conf
 
 	if s.Type.Kind() == reflect.Struct {
 		return
@@ -81,8 +83,8 @@ func CreateConfig(v reflect.Value, s reflect.StructField) (c FieldConfig, err er
 		return
 	}
 
-	for _, tag := range strings.Split(tags, ";") {
-		splitTag := strings.SplitN(tag, ":", 2)
+	for _, tag := range strings.Split(tags, conf.AttributeSeparator) {
+		splitTag := strings.SplitN(tag, conf.Definition, 2)
 		if len(splitTag) <= 1 {
 			err = fmt.Errorf("Invalid tag %s", tag)
 			continue

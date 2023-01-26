@@ -7,10 +7,6 @@ import (
 	"strings"
 )
 
-const (
-	ARRAY_SEPARATOR = ","
-)
-
 type fieldProcessor struct {
 	Kind reflect.Kind
 	// A function that gets the tag for a field and return a value
@@ -18,7 +14,10 @@ type fieldProcessor struct {
 	Processor func(val reflect.Value, field reflect.StructField, conf FieldConfig, stack fieldProcessorStack) (reflect.Value, error)
 }
 
-type fieldProcessorStack []fieldProcessor
+type fieldProcessorStack struct {
+	Stack  []fieldProcessor
+	Config Config
+}
 
 func (p fieldProcessorStack) Load(i interface{}) (errs []error) {
 	iterable, err := iterableType(i)
@@ -30,7 +29,7 @@ func (p fieldProcessorStack) Load(i interface{}) (errs []error) {
 	for iterable.Next() {
 		value, structField := iterable.Get()
 
-		conf, err := CreateConfig(value, structField)
+		conf, err := CreateConfig(value, structField, p.Config)
 		if err != nil {
 			errs = append(errs, fmt.Errorf("ENVLOADER: Invalid tag, for field %s error: %s", structField.Name, err.Error()))
 			continue
@@ -52,7 +51,7 @@ func (p fieldProcessorStack) Load(i interface{}) (errs []error) {
 }
 
 func (p fieldProcessorStack) ProcessField(val reflect.Value, field reflect.StructField, conf FieldConfig) (v reflect.Value, err error) {
-	for _, processor := range p {
+	for _, processor := range p.Stack {
 		if val.Kind() == processor.Kind {
 			v, err = processor.Processor(val, field, conf, p)
 		}
@@ -60,18 +59,21 @@ func (p fieldProcessorStack) ProcessField(val reflect.Value, field reflect.Struc
 	return
 }
 
-func defaultStack() fieldProcessorStack {
+func defaultStack(config Config) fieldProcessorStack {
 	return fieldProcessorStack{
-		intProcessor,
-		int8Processor,
-		int16Processor,
-		int32Processor,
-		int64Processor,
-		float32Processor,
-		float64Processor,
-		stringProcessor,
-		sliceProcessor,
-		structProcessor,
+		Stack: []fieldProcessor{
+			intProcessor,
+			int8Processor,
+			int16Processor,
+			int32Processor,
+			int64Processor,
+			float32Processor,
+			float64Processor,
+			stringProcessor,
+			sliceProcessor,
+			structProcessor,
+		},
+		Config: config,
 	}
 }
 
@@ -223,7 +225,7 @@ var sliceProcessor = fieldProcessor{
 	Processor: func(val reflect.Value, field reflect.StructField, conf FieldConfig, stack fieldProcessorStack) (v reflect.Value, err error) {
 		rawValues, from := conf.GetValue()
 
-		rawValueArr := strings.Split(rawValues, ARRAY_SEPARATOR)
+		rawValueArr := strings.Split(rawValues, conf.Config.SliceSeparator)
 
 		elemType := field.Type.Elem()
 		elemVal := reflect.Zero(elemType)
