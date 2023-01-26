@@ -80,7 +80,7 @@ func generateRandomValueArr(size int) (reflect.Value, string) {
 
 	randStringArr := func() (data []string) {
 		for i := 0; i < size; i++ {
-			data = append(data, string(generateRandomString(10)))
+			data = append(data, strings.TrimSpace(string(generateRandomString(10))))
 		}
 		return
 	}
@@ -192,6 +192,8 @@ func (t *dummyStruct) compare() bool {
 		expectedVal := t.Expected[structField.Name]
 
 		if fmt.Sprint(value.Interface()) != fmt.Sprint(expectedVal.Interface()) {
+			fmt.Println(fmt.Sprint(value.Interface()))
+			fmt.Println(fmt.Sprint(expectedVal.Interface()))
 			return false
 		}
 	}
@@ -321,7 +323,6 @@ func TestDefaultValues(t *testing.T) {
 		errs := processor.Load(testData.Value.Interface())
 
 		if len(errs) != 0 {
-			fmt.Println(errs)
 			t.FailNow()
 		}
 
@@ -425,7 +426,7 @@ func TestErrorInvalidTag(t *testing.T) {
 	processor := New(nil)
 
 	type TestStruct struct {
-		Test string `env:"key:TEST:234"`
+		Test string `env:"key;234"`
 	}
 
 	test := TestStruct{}

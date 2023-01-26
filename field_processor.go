@@ -231,6 +231,7 @@ var sliceProcessor = fieldProcessor{
 		v = reflect.MakeSlice(field.Type, 0, len(rawValueArr))
 
 		for _, rawValue := range rawValueArr {
+			rawValue = strings.TrimSpace(rawValue)
 			var vEl reflect.Value
 
 			conf.OverrideValue = &rawValue

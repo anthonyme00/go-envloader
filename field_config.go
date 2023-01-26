@@ -82,8 +82,8 @@ func CreateConfig(v reflect.Value, s reflect.StructField) (c FieldConfig, err er
 	}
 
 	for _, tag := range strings.Split(tags, ";") {
-		splitTag := strings.Split(tag, ":")
-		if len(splitTag) != 2 {
+		splitTag := strings.SplitN(tag, ":", 2)
+		if len(splitTag) <= 1 {
 			err = fmt.Errorf("Invalid tag %s", tag)
 			continue
 		}
