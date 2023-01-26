@@ -65,7 +65,7 @@ func main() {
 
 	loader := envloader.New(nil)
 
-	errs, _ := loader.Load(&config)
+	errs := loader.Load(&config)
 	if len(errs) > 0 {
 		// Error handling here
 	}
