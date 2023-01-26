@@ -15,7 +15,7 @@ const (
 	SOURCE_OVERRIDE = "OVERRIDE"
 )
 
-type FieldConfig struct {
+type fieldConfig struct {
 	Key           string
 	DefaultValue  *string
 	OverrideValue *string
@@ -24,7 +24,7 @@ type FieldConfig struct {
 	field         reflect.StructField
 }
 
-func (f *FieldConfig) GetValue() (v, source string) {
+func (f *fieldConfig) GetValue() (v, source string) {
 	if f.OverrideValue != nil {
 		return *f.OverrideValue, SOURCE_OVERRIDE
 	}
@@ -39,7 +39,7 @@ func (f *FieldConfig) GetValue() (v, source string) {
 	return
 }
 
-func (f *FieldConfig) WriteENVString(sb *strings.Builder) {
+func (f *fieldConfig) WriteENVString(sb *strings.Builder) {
 	if f.value.Kind() == reflect.Struct {
 		sb.WriteRune('\n')
 		iter, err := iterableType(f.value.Addr().Interface())
@@ -47,7 +47,7 @@ func (f *FieldConfig) WriteENVString(sb *strings.Builder) {
 			for iter.Next() {
 				value, structField := iter.Get()
 
-				conf, err := CreateConfig(value, structField, f.Config)
+				conf, err := createConfig(value, structField, f.Config)
 				if err != nil {
 					continue
 				}
@@ -68,7 +68,7 @@ func (f *FieldConfig) WriteENVString(sb *strings.Builder) {
 	sb.WriteString(fmt.Sprintf("%s = %s\n", f.Key, val))
 }
 
-func CreateConfig(v reflect.Value, s reflect.StructField, conf Config) (c FieldConfig, err error) {
+func createConfig(v reflect.Value, s reflect.StructField, conf Config) (c fieldConfig, err error) {
 	c.value = v
 	c.field = s
 	c.Config = conf

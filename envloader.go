@@ -65,7 +65,7 @@ func (e *EnvLoader) Stringify(i interface{}) (s string, err error) {
 	for iterable.Next() {
 		value, structField := iterable.Get()
 
-		c, errConf := CreateConfig(value, structField, e.config)
+		c, errConf := createConfig(value, structField, e.config)
 		if errConf != nil {
 			err = errConf
 			return

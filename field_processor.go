@@ -11,7 +11,7 @@ type fieldProcessor struct {
 	Kind reflect.Kind
 	// A function that gets the tag for a field and return a value
 	// to assign it to that field
-	Processor func(val reflect.Value, field reflect.StructField, conf FieldConfig, stack fieldProcessorStack) (reflect.Value, error)
+	Processor func(val reflect.Value, field reflect.StructField, conf fieldConfig, stack fieldProcessorStack) (reflect.Value, error)
 }
 
 type fieldProcessorStack struct {
@@ -29,7 +29,7 @@ func (p fieldProcessorStack) Load(i interface{}) (errs []error) {
 	for iterable.Next() {
 		value, structField := iterable.Get()
 
-		conf, err := CreateConfig(value, structField, p.Config)
+		conf, err := createConfig(value, structField, p.Config)
 		if err != nil {
 			errs = append(errs, fmt.Errorf("ENVLOADER: Invalid tag, for field %s error: %s", structField.Name, err.Error()))
 			continue
@@ -50,7 +50,7 @@ func (p fieldProcessorStack) Load(i interface{}) (errs []error) {
 	return
 }
 
-func (p fieldProcessorStack) ProcessField(val reflect.Value, field reflect.StructField, conf FieldConfig) (v reflect.Value, err error) {
+func (p fieldProcessorStack) ProcessField(val reflect.Value, field reflect.StructField, conf fieldConfig) (v reflect.Value, err error) {
 	for _, processor := range p.Stack {
 		if val.Kind() == processor.Kind {
 			v, err = processor.Processor(val, field, conf, p)
@@ -79,7 +79,7 @@ func defaultStack(config Config) fieldProcessorStack {
 
 var intProcessor = fieldProcessor{
 	Kind: reflect.Int,
-	Processor: func(val reflect.Value, field reflect.StructField, conf FieldConfig, stack fieldProcessorStack) (v reflect.Value, err error) {
+	Processor: func(val reflect.Value, field reflect.StructField, conf fieldConfig, stack fieldProcessorStack) (v reflect.Value, err error) {
 		parseInt := func(s string) (int64, error) {
 			return strconv.ParseInt(s, 10, 64)
 		}
@@ -98,7 +98,7 @@ var intProcessor = fieldProcessor{
 
 var int8Processor = fieldProcessor{
 	Kind: reflect.Int8,
-	Processor: func(val reflect.Value, field reflect.StructField, conf FieldConfig, stack fieldProcessorStack) (v reflect.Value, err error) {
+	Processor: func(val reflect.Value, field reflect.StructField, conf fieldConfig, stack fieldProcessorStack) (v reflect.Value, err error) {
 		parseInt := func(s string) (int64, error) {
 			return strconv.ParseInt(s, 10, 8)
 		}
@@ -117,7 +117,7 @@ var int8Processor = fieldProcessor{
 
 var int16Processor = fieldProcessor{
 	Kind: reflect.Int16,
-	Processor: func(val reflect.Value, field reflect.StructField, conf FieldConfig, stack fieldProcessorStack) (v reflect.Value, err error) {
+	Processor: func(val reflect.Value, field reflect.StructField, conf fieldConfig, stack fieldProcessorStack) (v reflect.Value, err error) {
 		parseInt := func(s string) (int64, error) {
 			return strconv.ParseInt(s, 10, 16)
 		}
@@ -136,7 +136,7 @@ var int16Processor = fieldProcessor{
 
 var int32Processor = fieldProcessor{
 	Kind: reflect.Int32,
-	Processor: func(val reflect.Value, field reflect.StructField, conf FieldConfig, stack fieldProcessorStack) (v reflect.Value, err error) {
+	Processor: func(val reflect.Value, field reflect.StructField, conf fieldConfig, stack fieldProcessorStack) (v reflect.Value, err error) {
 		parseInt := func(s string) (int64, error) {
 			return strconv.ParseInt(s, 10, 32)
 		}
@@ -155,7 +155,7 @@ var int32Processor = fieldProcessor{
 
 var int64Processor = fieldProcessor{
 	Kind: reflect.Int64,
-	Processor: func(val reflect.Value, field reflect.StructField, conf FieldConfig, stack fieldProcessorStack) (v reflect.Value, err error) {
+	Processor: func(val reflect.Value, field reflect.StructField, conf fieldConfig, stack fieldProcessorStack) (v reflect.Value, err error) {
 		parseInt := func(s string) (int64, error) {
 			return strconv.ParseInt(s, 10, 64)
 		}
@@ -174,7 +174,7 @@ var int64Processor = fieldProcessor{
 
 var float32Processor = fieldProcessor{
 	Kind: reflect.Float32,
-	Processor: func(val reflect.Value, field reflect.StructField, conf FieldConfig, stack fieldProcessorStack) (v reflect.Value, err error) {
+	Processor: func(val reflect.Value, field reflect.StructField, conf fieldConfig, stack fieldProcessorStack) (v reflect.Value, err error) {
 		parseFloat := func(s string) (float64, error) {
 			return strconv.ParseFloat(s, 32)
 		}
@@ -193,7 +193,7 @@ var float32Processor = fieldProcessor{
 
 var float64Processor = fieldProcessor{
 	Kind: reflect.Float64,
-	Processor: func(val reflect.Value, field reflect.StructField, conf FieldConfig, stack fieldProcessorStack) (v reflect.Value, err error) {
+	Processor: func(val reflect.Value, field reflect.StructField, conf fieldConfig, stack fieldProcessorStack) (v reflect.Value, err error) {
 		parseFloat := func(s string) (float64, error) {
 			return strconv.ParseFloat(s, 64)
 		}
@@ -212,7 +212,7 @@ var float64Processor = fieldProcessor{
 
 var stringProcessor = fieldProcessor{
 	Kind: reflect.String,
-	Processor: func(val reflect.Value, field reflect.StructField, conf FieldConfig, stack fieldProcessorStack) (v reflect.Value, err error) {
+	Processor: func(val reflect.Value, field reflect.StructField, conf fieldConfig, stack fieldProcessorStack) (v reflect.Value, err error) {
 		value, _ := conf.GetValue()
 
 		v = reflect.ValueOf(value)
@@ -222,7 +222,7 @@ var stringProcessor = fieldProcessor{
 
 var sliceProcessor = fieldProcessor{
 	Kind: reflect.Slice,
-	Processor: func(val reflect.Value, field reflect.StructField, conf FieldConfig, stack fieldProcessorStack) (v reflect.Value, err error) {
+	Processor: func(val reflect.Value, field reflect.StructField, conf fieldConfig, stack fieldProcessorStack) (v reflect.Value, err error) {
 		rawValues, from := conf.GetValue()
 
 		rawValueArr := strings.Split(rawValues, conf.Config.SliceSeparator)
@@ -251,7 +251,7 @@ var sliceProcessor = fieldProcessor{
 
 var structProcessor = fieldProcessor{
 	Kind: reflect.Struct,
-	Processor: func(val reflect.Value, field reflect.StructField, conf FieldConfig, stack fieldProcessorStack) (v reflect.Value, err error) {
+	Processor: func(val reflect.Value, field reflect.StructField, conf fieldConfig, stack fieldProcessorStack) (v reflect.Value, err error) {
 		vAddr := val.Addr()
 		stack.Load(vAddr.Interface())
 		v = vAddr.Elem()
