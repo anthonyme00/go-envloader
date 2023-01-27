@@ -19,6 +19,7 @@ func generateRandomValue() reflect.Value {
 		float64(rand.Float64() * 100.0),
 		float32(rand.Float32() * 100.0),
 		string(generateRandomString(10)),
+		int(rand.Int()%2) == 0,
 	}
 
 	i := rand.Int() % len(store)
@@ -27,7 +28,7 @@ func generateRandomValue() reflect.Value {
 }
 
 func generateRandomValueArr(size int) (reflect.Value, string) {
-	typeCount := 8
+	typeCount := 9
 
 	randInt64Arr := func() (data []int64) {
 		for i := 0; i < size; i++ {
@@ -85,6 +86,13 @@ func generateRandomValueArr(size int) (reflect.Value, string) {
 		return
 	}
 
+	randBoolArr := func() (data []bool) {
+		for i := 0; i < size; i++ {
+			data = append(data, int(rand.Int()%2) == 0)
+		}
+		return
+	}
+
 	i := rand.Int() % typeCount
 
 	val := reflect.Value{}
@@ -135,6 +143,12 @@ func generateRandomValueArr(size int) (reflect.Value, string) {
 		val = reflect.ValueOf(data)
 	case 7:
 		data := randStringArr()
+		for _, d := range data {
+			returnStrElems = append(returnStrElems, fmt.Sprint(d))
+		}
+		val = reflect.ValueOf(data)
+	case 8:
+		data := randBoolArr()
 		for _, d := range data {
 			returnStrElems = append(returnStrElems, fmt.Sprint(d))
 		}

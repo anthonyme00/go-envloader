@@ -146,5 +146,12 @@ DB_URI = 192.168.0.1:8080
 - `string` : single, slice
 - **custom** `struct` : single
 
+## Special Types
+These types are casted from string to its respective type. Follow this guideline for these types
+- `bool` : single, slice <br>
+	values :
+	- `"true"`= `true`
+	- `"false"` = `false
+
 # Limitations
 - Does not support pointer types

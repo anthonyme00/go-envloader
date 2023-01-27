@@ -51,11 +51,19 @@ func (p fieldProcessorStack) Load(i interface{}) (errs []error) {
 }
 
 func (p fieldProcessorStack) ProcessField(val reflect.Value, field reflect.StructField, conf fieldConfig) (v reflect.Value, err error) {
+	found := false
 	for _, processor := range p.Stack {
 		if val.Kind() == processor.Kind {
 			v, err = processor.Processor(val, field, conf, p)
+			found = true
+			break
 		}
 	}
+
+	if !found {
+		err = fmt.Errorf("Unable to find handler for kind %s", val.Kind().String())
+	}
+
 	return
 }
 
@@ -70,6 +78,7 @@ func defaultStack(config Config) fieldProcessorStack {
 			float32Processor,
 			float64Processor,
 			stringProcessor,
+			boolProcessor,
 			sliceProcessor,
 			structProcessor,
 		},
@@ -216,6 +225,16 @@ var stringProcessor = fieldProcessor{
 		value, _ := conf.GetValue()
 
 		v = reflect.ValueOf(value)
+		return
+	},
+}
+
+var boolProcessor = fieldProcessor{
+	Kind: reflect.Bool,
+	Processor: func(val reflect.Value, field reflect.StructField, conf fieldConfig, stack fieldProcessorStack) (v reflect.Value, err error) {
+		value, _ := conf.GetValue()
+		boolVal := value == "true"
+		v = reflect.ValueOf(boolVal)
 		return
 	},
 }
