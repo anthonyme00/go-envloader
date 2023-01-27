@@ -151,7 +151,7 @@ These types are casted from string to its respective type. Follow this guideline
 - `bool` : single, slice <br>
 	values :
 	- `"true"`= `true`
-	- `"false"` = `false
+	- `"false"` = `false`
 
 # Limitations
 - Does not support pointer types
