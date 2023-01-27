@@ -1,7 +1,8 @@
 [![License: GPL v3](https://img.shields.io/github/license/anthonyme00/go-envloader)](https://github.com/anthonyme00/go-envloader/blob/main/LICENSE)
 [![Go Reference](https://pkg.go.dev/badge/github.com/anthonyme00/go-envloader)](https://pkg.go.dev/github.com/anthonyme00/go-envloader)
-[![Coverage Status](https://coveralls.io/repos/github/anthonyme00/go-envloader/badge.svg)](https://coveralls.io/github/anthonyme00/go-envloader)
 ![Travis (.com)](https://app.travis-ci.com/anthonyme00/go-envloader.svg?branch=main)
+[![Coverage Status](https://coveralls.io/repos/github/anthonyme00/go-envloader/badge.svg)](https://coveralls.io/github/anthonyme00/go-envloader)
+[![Go Report Card](https://goreportcard.com/badge/github.com/anthonyme00/go-envloader)](https://goreportcard.com/report/github.com/anthonyme00/go-envloader)
 
 # go-envloader
 Easily load your go configuration structs from your environment variables
