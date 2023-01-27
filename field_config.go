@@ -41,7 +41,7 @@ func (f *fieldConfig) GetValue() (v, source string) {
 
 func (f *fieldConfig) WriteENVString(sb *strings.Builder) {
 	if f.value.Kind() == reflect.Struct {
-		sb.WriteRune('\n')
+		beforeLen := sb.Len()
 		iter, err := iterableType(f.value.Addr().Interface())
 		if err == nil {
 			for iter.Next() {
@@ -54,6 +54,10 @@ func (f *fieldConfig) WriteENVString(sb *strings.Builder) {
 
 				conf.WriteENVString(sb)
 			}
+		}
+
+		if sb.Len() > beforeLen {
+			sb.WriteRune('\n')
 		}
 	}
 
