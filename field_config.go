@@ -29,9 +29,10 @@ func (f *fieldConfig) GetValue() (v, source string) {
 		return *f.OverrideValue, SOURCE_OVERRIDE
 	}
 
-	v = os.Getenv(f.Key)
+	var ok bool
+	v, ok = os.LookupEnv(f.Key)
 	source = SOURCE_ENV
-	if v == "" && f.DefaultValue != nil {
+	if v == "" && f.DefaultValue != nil && !ok {
 		v = *f.DefaultValue
 		source = SOURCE_DEFAULT
 	}
